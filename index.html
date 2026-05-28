@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="SAM3D-Phys integrates scene reconstruction with generative 3D priors of SAM3D to recover physically simulatable objects.">
+  <meta name="keywords" content="Interactive Reconstruction, Generative 3D Priors, Object–Scene Alignment, Physical Simulation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM3D-Phys: Towards Multi-Object Interactive Simulation in Real World</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/icon.jpg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://hypernerf.github.io">
+            HyperNeRF
+          </a>
+          <a class="navbar-item" href="https://nerfies.github.io">
+            Nerfies
+          </a>
+          <a class="navbar-item" href="https://latentfusion.github.io">
+            LatentFusion
+          </a>
+          <a class="navbar-item" href="https://photoshape.github.io">
+            PhotoShape
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav> -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">SAM3D-Phys: Towards Multi-Object Interactive Simulation in Real World</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://chnxindong.github.io">Xin Dong</a><sup>1,2</sup>,</span>
+            <span class="author-block">
+              <a href="https://wdengthusz.xyz/">Weijian Deng</a><sup>3</sup>,</span>
+            <span class="author-block">
+              Lihan Zhang</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Tianru Dai<sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Wenfeng Deng<sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://andytang15.github.io/">Yansong Tang</a><sup>1</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Shenzhen International Graduate School, Tsinghua University,</span>
+            <span class="author-block"><sup>2</sup>Pengcheng Laboratory</span>
+            <span class="author-block"><sup>3</sup>Australian National University</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link.
+              <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span> -->
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies/releases/tag/0.1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a>
+              </span> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/teaser.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
+        free-viewpoint
+        portraits.
+      </h2>
+    </div>
+  </div>
+</section> -->
+
+
+<!-- <section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/steve.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/chair-tp.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-shiba">
+          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/shiba.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-fullbody">
+          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/fullbody.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-blueshirt">
+          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blueshirt.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-mask">
+          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/mask.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-coffee">
+          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/coffee.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-toby">
+          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/toby2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+
+<section class="section framework-abstract-section">
+  <div class="container is-max-desktop">
+
+    <!-- Framework figure. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="publication-video framework-figure">
+          <img src="./static/images/framework.png"
+               alt="Framework"
+               loading="lazy"
+               style="width: 100%; height: auto;" />
+        </div>
+      </div>
+    </div>
+    <!--/ Framework figure. -->
+
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            This work addresses the problem of recovering complete, simulatable object geometry from reconstructed real-world scenes, enabling physics-based interaction with objects embedded in the scene. While modern multi-view reconstruction methods can produce visually accurate environments, objects are often incomplete due to occlusions and limited observations, making them unsuitable for physics simulation. To address this limitation, we propose SAM3D-Phys, a framework that integrates scene reconstruction with generative 3D priors of SAM3D to recover physically simulatable objects. Our approach first reconstructs the scene from multi-view images to obtain scene geometry and partial observations of objects. We then leverage SAM3D to infer complete object geometry from these partial observations. To ensure that the recovered objects remain consistent with the reconstructed scene, we restore scene-consistent object states through two complementary strategies: a physics-constrained spatial optimization algorithm that iteratively aligns the recovered object to its original location, and a mask-guided appearance distillation module that refines texture fidelity based on the observed images. By recovering complete object geometry and restoring its pose and appearance within the scene, SAM3D-Phys produces clean object representations suitable for physics-based simulation, enabling simultaneous and physically consistent interactive simulation of multiple objects within a reconstructed scene.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <h2 class="title is-3">Video comparisons</h2>
+    <!-- <p>
+            Unlike baseline approaches (i.e. Feature Splatting) dependent on natural language for localization and segmentation, which fails in multi-object scenarios and suffer from severe tearing and blur, our method utilizes generative priors to resolve object separation gaps in 3D reconstruction. By jointly exploiting metric cues and appearance information from reconstruciton process, our method guarantees accurate spatial alignment and visual fidelity, ultimately enabling the generation of physically reasonable motion.
+          </p> -->
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="content">
+          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/sam3d_phys_videos/1. room_ours.mp4"
+                    type="video/mp4">
+          </video>
+          <p class="has-text-centered"><strong style="color: red;">Ours</strong></p>
+        </div>
+      </div>
+      <div class="column">
+          <div class="content">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/sam3d_phys_videos/2. room_feature_splatting.mp4"
+                      type="video/mp4">
+            </video>
+            <p class="has-text-centered"><strong>Feature Splatting</strong></p>
+          </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="content">
+          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/sam3d_phys_videos/5. outdoor_ours.mp4"
+                    type="video/mp4">
+          </video>
+          <p class="has-text-centered"><strong style="color: red;">Ours</strong></p>
+        </div>
+      </div>
+      <div class="column">
+          <div class="content">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/sam3d_phys_videos/6. outdoor_feature_splatting.mp4"
+                      type="video/mp4">
+            </video>
+            <p class="has-text-centered"><strong>Feature Splatting</strong></p>
+          </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="content">
+          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/sam3d_phys_videos/7. flower_bed_ours.mp4"
+                    type="video/mp4">
+          </video>
+          <p class="has-text-centered"><strong style="color: red;">Ours</strong></p>
+        </div>
+      </div>
+      <div class="column">
+          <div class="content">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/sam3d_phys_videos/8. flower_bed_feature_splatting.mp4"
+                      type="video/mp4">
+            </video>
+            <p class="has-text-centered"><strong>Feature Splatting</strong></p>
+          </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="content">
+          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/sam3d_phys_videos/3. bear_ours.mp4"
+                    type="video/mp4">
+          </video>
+          <p class="has-text-centered"><strong style="color: red;">Ours</strong></p>
+        </div>
+      </div>
+      <div class="column">
+          <div class="content">
+            <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+              <source src="./static/videos/sam3d_phys_videos/4. bear_feature_splatting.mp4"
+                      type="video/mp4">
+            </video>
+            <p class="has-text-centered"><strong>Feature Splatting</strong></p>
+          </div>
+      </div>
+    </div>
+
+    <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+
+        <h3 class="title is-4 has-text-centered">Comparison with baselines</h3>
+        <div class="content has-text-justified">
+          <p>
+            Unlike baseline approaches (i.e. Feature Splatting) dependent on natural language for localization and segmentation, which fails in multi-object scenarios and suffer from severe tearing and blur, our method utilizes generative priors to resolve object separation gaps in 3D reconstruction. By jointly exploiting metric cues and appearance information from reconstruciton process, our method guarantees accurate spatial alignment and visual fidelity, ultimately enabling the generation of physically reasonable motion.
+          </p>
+        </div>
+        <!-- Zoom-in comparison figure. -->
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <div class="publication-video framework-figure">
+              <img src="./static/images/zoom-in_comparison_01.png"
+                  alt="Zoom-in comparison"
+                  loading="lazy"
+                  style="width: 100%; height: auto;" />
+            </div>
+          </div>
+        </div>
+        <!--/ Zoom-in comparison figure. -->
+
+        <h3 class="title is-4 has-text-centered">Render-and-compare refinement with scene metric</h3>
+        <div class="content has-text-justified">
+          <p>
+            Two examples of render-and-compare refinement for spatial alignment. Each column shows the intermediate result at increasing optimization steps. (a) Example of mask-based alignment for the bear statue, where the rendered object progressively aligns with the observed mask region in the image. (b) Example of pose refinement for the ball object, where the object position gradually converges to the correct placement within the scene. As optimization proceeds, the rendered geometry becomes increasingly consistent with the mask constraint and the scene context, resulting in more accurate spatial alignment for downstream physical simulation.
+          </p>
+        </div>
+        <!-- Zoom-in comparison figure. -->
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <div class="publication-video framework-figure">
+              <img src="./static/images/pose_alignment_2.png"
+                  alt="Zoom-in comparison"
+                  loading="lazy"
+                  style="width: 100%; height: auto;" />
+            </div>
+          </div>
+        </div>
+        <!--/ Zoom-in comparison figure. -->
+
+        <h3 class="title is-4 has-text-centered">User Study and LMM-as-Judge Evaluatio</h3>
+        <div class="content has-text-justified">
+          <p>
+            We invited 12 participants and showed each of them the rendered videos generated by different methods across all scenes. As shown in the table, our method significantly outperforms the baselines in both motion realism and visual quality. Additionally, Large Multimodal Model (LMM) have recently emerged as a powerful tool for assessing the quality of rendered videos. The results output from the LMM align closely with human judgments, validating the effectiveness of our approach.
+          </p>
+        </div>
+        <!-- Zoom-in comparison figure. -->
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <div class="publication-video framework-figure">
+              <img src="./static/images/table.png"
+                  alt="Zoom-in comparison"
+                  loading="lazy"
+                  style="width: 70%; height: auto; display: block; margin: 0 auto;" />
+            </div>
+          </div>
+        </div>
+        <!--/ Zoom-in comparison figure. -->
+
+      </div>
+    </div>
+    <!--/ Animation. -->
+
+
+    <!-- Concurrent Work. -->
+    <!-- <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            There's a lot of excellent work that was introduced around the same time as ours.
+          </p>
+          <p>
+            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
+          </p>
+          <p>
+            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
+            both use deformation fields to model non-rigid scenes.
+          </p>
+          <p>
+            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
+          </p>
+          <p>
+            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
+          </p>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<!-- 提交arxiv之后，就更新这里的arxiv链接 -->
+<!-- <section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{park2021nerfies,
+  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
+  title     = {Nerfies: Deformable Neural Radiance Fields},
+  journal   = {ICCV},
+  year      = {2021},
+}</code></pre>
+  </div>
+</section> -->
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
